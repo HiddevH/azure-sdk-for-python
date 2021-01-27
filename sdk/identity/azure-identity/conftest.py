@@ -81,9 +81,9 @@ def live_pem_certificate(live_service_principal):  # pylint:disable=inconsistent
 
     current_directory = os.path.dirname(__file__)
     parameters = {
-        "cert_bytes": content,
+        "cert_bytes": six.ensure_binary(content),
         "cert_path": os.path.join(current_directory, "certificate.pem"),
-        "cert_with_password_bytes": password_protected_content,
+        "cert_with_password_bytes": six.ensure_binary(password_protected_content),
         "cert_with_password_path": os.path.join(current_directory, "certificate-with-password.pem"),
         "password": password
     }
@@ -100,10 +100,11 @@ def live_pem_certificate(live_service_principal):  # pylint:disable=inconsistent
 
 
 @pytest.fixture()
-def live_pfx_certificate(live_service_principal):  # pylint:disable=inconsistent-return-statements,redefined-outer-name
+def live_pfx_certificate(live_service_principal, tmpdir):  # pylint:disable=inconsistent-return-statements,redefined-outer-name
     import base64
     import six
 
+    # PFX bytes arrive base64 encoded because Key Vault secrets have string values
     encoded_content = os.environ.get("PFX_CONTENT")
     if not encoded_content:
         pytest.skip('Expected PFX content in environment variable "PFX_CONTENT"')
